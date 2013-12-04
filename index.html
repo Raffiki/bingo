@@ -25,6 +25,7 @@
     })
     socket.on('win', function (message) {console.log('win', message)})
     socket.on('lose', function (message) {console.log('lose', message)})
+    socket.on('disconnect', function (){console.log('disconnected')})
     socket.on('number', function (number) {
         var line = number.charAt(0)
         var x = bingo[line]
