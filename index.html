@@ -1,0 +1,56 @@
+<html>
+<head>
+<script src="http://localhost:8889/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('ws://yahoobingo.herokuapp.com');
+  socket.on('connect', function () {
+          var card, lists = [], bingo = {
+          'B': 0,
+          'I': 1,
+          'N': 2,
+          'G': 3,
+          'O': 4
+          }
+    for (var i=0; i<12; i++) {
+        lists[i] = [false, false, false, false, false]
+    }
+    socket.emit('register', {
+        name: 'Raf Huys',
+        email: 'raf.huys@gmail.com',
+        url: 'https://github.com/raffiki/bingo'
+    });
+    socket.on('card', function (payload) {
+        console.log(payload)
+        card = payload.slots
+    })
+    socket.on('win', function (message) {console.log('win', message)})
+    socket.on('lose', function (message) {console.log('lose', message)})
+    socket.on('number', function (number) {
+        var line = number.charAt(0)
+        var x = bingo[line]
+
+        var nr = +number.slice(1,number.length)
+        var y = card[line].indexOf(nr)
+        if (~card[line].indexOf(nr)) {
+            console.log('bingo', x, y, lists)
+            lists[x][y]=true
+            lists[y+5][x]=true
+            if (x+y===5) {
+                lists[10][x] = true
+                lists[11][y] = true
+            }
+            console.log(lists)
+            lists.forEach(function(list){
+                var bingo = true
+                list.forEach(function(val) {
+                    if (!val) bingo = false
+                })
+                if (bingo) socket.emit('bingo')
+            })
+        }
+
+    })
+  });
+</script>
+</head>
+</html>
